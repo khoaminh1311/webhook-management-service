@@ -109,7 +109,8 @@ public class WebhookDeliveryServiceTests
                 a.IsSuccessful == true &&
                 a.HttpStatusCode == 200 &&
                 a.AttemptNumber == 1 &&
-                a.IsDeadLettered == false),
+                a.IsDeadLettered == false &&
+                a.Status == DeliveryStatus.Succeeded),
             Arg.Any<CancellationToken>());
         
         await _delayService.DidNotReceive().DelayAsync(Arg.Any<TimeSpan>(), Arg.Any<CancellationToken>());
@@ -151,7 +152,8 @@ public class WebhookDeliveryServiceTests
                 a.IsSuccessful == false &&
                 a.HttpStatusCode == 400 &&
                 a.AttemptNumber == 1 &&
-                a.IsDeadLettered == true),
+                a.IsDeadLettered == true &&
+                a.Status == DeliveryStatus.DeadLettered),
             Arg.Any<CancellationToken>());
 
         await _delayService.DidNotReceive().DelayAsync(Arg.Any<TimeSpan>(), Arg.Any<CancellationToken>());
@@ -183,11 +185,11 @@ public class WebhookDeliveryServiceTests
         await _deliveryAttemptRepository.Received(3).AddAsync(Arg.Any<DeliveryAttempt>(), Arg.Any<CancellationToken>());
         
         await _deliveryAttemptRepository.Received(1).AddAsync(
-            Arg.Is<DeliveryAttempt>(a => a.AttemptNumber == 1 && a.IsDeadLettered == false), Arg.Any<CancellationToken>());
+            Arg.Is<DeliveryAttempt>(a => a.AttemptNumber == 1 && a.IsDeadLettered == false && a.Status == DeliveryStatus.Failed), Arg.Any<CancellationToken>());
         await _deliveryAttemptRepository.Received(1).AddAsync(
-            Arg.Is<DeliveryAttempt>(a => a.AttemptNumber == 2 && a.IsDeadLettered == false), Arg.Any<CancellationToken>());
+            Arg.Is<DeliveryAttempt>(a => a.AttemptNumber == 2 && a.IsDeadLettered == false && a.Status == DeliveryStatus.Failed), Arg.Any<CancellationToken>());
         await _deliveryAttemptRepository.Received(1).AddAsync(
-            Arg.Is<DeliveryAttempt>(a => a.AttemptNumber == 3 && a.IsDeadLettered == true), Arg.Any<CancellationToken>());
+            Arg.Is<DeliveryAttempt>(a => a.AttemptNumber == 3 && a.IsDeadLettered == true && a.Status == DeliveryStatus.DeadLettered), Arg.Any<CancellationToken>());
 
         await _delayService.Received(2).DelayAsync(Arg.Any<TimeSpan>(), Arg.Any<CancellationToken>());
     }
@@ -216,7 +218,7 @@ public class WebhookDeliveryServiceTests
         await _deliveryAttemptRepository.Received(3).AddAsync(Arg.Any<DeliveryAttempt>(), Arg.Any<CancellationToken>());
         
         await _deliveryAttemptRepository.Received(1).AddAsync(
-            Arg.Is<DeliveryAttempt>(a => a.AttemptNumber == 3 && a.IsDeadLettered == true), Arg.Any<CancellationToken>());
+            Arg.Is<DeliveryAttempt>(a => a.AttemptNumber == 3 && a.IsDeadLettered == true && a.Status == DeliveryStatus.DeadLettered), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -243,7 +245,7 @@ public class WebhookDeliveryServiceTests
         await service.ProcessDeliveryAsync(workItem);
 
         // Assert
-        await _deliveryAttemptRepository.Received(1).AddAsync(Arg.Any<DeliveryAttempt>(), Arg.Any<CancellationToken>());
+        await _deliveryAttemptRepository.Received(1).AddAsync(Arg.Is<DeliveryAttempt>(a => a.Status == DeliveryStatus.Failed), Arg.Any<CancellationToken>());
     }
 }
 

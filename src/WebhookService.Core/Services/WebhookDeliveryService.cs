@@ -145,6 +145,19 @@ public class WebhookDeliveryService : IWebhookDeliveryService
                 attempt.IsDeadLettered = true;
             }
 
+            if (attempt.IsSuccessful)
+            {
+                attempt.Status = DeliveryStatus.Succeeded;
+            }
+            else if (attempt.IsDeadLettered)
+            {
+                attempt.Status = DeliveryStatus.DeadLettered;
+            }
+            else
+            {
+                attempt.Status = DeliveryStatus.Failed;
+            }
+
             await _deliveryAttemptRepository.AddAsync(attempt, ct);
 
             if (attempt.IsSuccessful)

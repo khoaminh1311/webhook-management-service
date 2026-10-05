@@ -28,6 +28,25 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Description = "A webhook management and delivery service with retry handling, HMAC security, and structured observability."
     });
+
+    // JWT Bearer security scheme for Swagger UI "Authorize" button
+    const string bearerSchemeId = "Bearer";
+
+    options.AddSecurityDefinition(bearerSchemeId, new Microsoft.OpenApi.OpenApiSecurityScheme
+    {
+        Type = Microsoft.OpenApi.SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description = "Enter your JWT token. The 'Bearer' prefix is added automatically."
+    });
+
+    options.AddSecurityRequirement(document => new Microsoft.OpenApi.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.OpenApiSecuritySchemeReference(bearerSchemeId, document),
+            new List<string>()
+        }
+    });
 });
 
 // Configuration
