@@ -38,7 +38,7 @@ A portfolio-quality backend service built with **ASP.NET Core** that enables use
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/webhook-management-service.git
+git clone https://github.com/khoaminh1311/webhook-management-service.git
 cd webhook-management-service
 
 # Restore dependencies

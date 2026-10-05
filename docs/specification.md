@@ -68,7 +68,7 @@ Client (REST)
 Four tables:
 
 ### 1. Users
-- Id (PK, Guid)
+- Id (PK,Guid)
 - Email (unique)
 - PasswordHash
 - ApiKey (unique)
